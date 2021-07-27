@@ -9,7 +9,7 @@ export const main = () => {
         if (postcodeFrame.contentType === ContentType.TEXT_TYPE 
             && postcodeFrame.parentPage === barcodeFrames[i].parentPage
         ) {
-            generateCustomerBarcode(Number(postcodeFrame.contents), barcodeFrames[i]);
+            generateCustomerBarcode(postcodeFrame.contents.toString(), barcodeFrames[i]);
         } else {
             alert('NG:' + (postcodeFrame instanceof PageItem));
         }

@@ -34,7 +34,7 @@ const customBars: { [K in CustomBarTypes]: BarShapeTypes[] } & Object = {
     'c8': ['full', 'full', 'full'],
 }
 
-export const generateCustomerBarcode = (postcode: number, frame: PageItem) => {
+export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
     const targetPage = frame.parentPage;
     const targetLayer = getTargetLayer();
     const barWidth = (Number(frame.geometricBounds[3]) - Number(frame.geometricBounds[1])) / 133; //(2 * 2 + 3 * 21) * 2 - 1;
@@ -43,7 +43,7 @@ export const generateCustomerBarcode = (postcode: number, frame: PageItem) => {
     const top = Number(frame.geometricBounds[0]);
     const left = Number(frame.geometricBounds[1]);
 
-    const codes = String(postcode).split('') as CustomBarTypes[];
+    const codes = postcode.split('') as CustomBarTypes[];
     codes.unshift('start');
 
     const patterns = [] as BarShapeTypes[];
