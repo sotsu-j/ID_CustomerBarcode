@@ -1,0 +1,29 @@
+{
+	// IntelliSense を使用して利用可能な属性を学べます。
+	// 既存の属性の説明をホバーして表示します。
+	// 詳細情報は次を確認してください: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"type": "extendscript-debug",
+			"request": "launch",
+			"name": "現在のファイルをExtendScriptとして実行",
+			"program": "${file}",
+			"stopOnEntry": false
+		},
+		{
+			"type": "extendscript-debug",
+			"request": "launch",
+			"name": "メインスクリプトを実行",
+			"program": "${workspaceFolder}/jsx/bundle.jsx",
+			"stopOnEntry": false
+		},
+		{
+			"type": "extendscript-debug",
+			"request": "launch",
+			"name": "スクリプト名を求める",
+			"program": "${workspaceFolder}/${command:AskForScriptName}",
+			"stopOnEntry": false
+		}
+	]
+}
