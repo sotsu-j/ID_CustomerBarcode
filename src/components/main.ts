@@ -1,8 +1,9 @@
+import { BARCODE_LAYERS } from ".";
 import { generateCustomerBarcode } from "./generateCustomerBarcode";
 
 export const main = () => {
-    const postcodeFrames = app.activeDocument.layers.item('postcode').pageItems;
-    const barcodeFrames = app.activeDocument.layers.item('barcode').pageItems;
+    const postcodeFrames = app.activeDocument.layers.item(BARCODE_LAYERS.POSTCODE).pageItems;
+    const barcodeFrames = app.activeDocument.layers.item(BARCODE_LAYERS.BARCODE_SHAPE).pageItems;
 
     for (let i = 0; i < postcodeFrames.length; i++) {
         const postcodeFrame = postcodeFrames[i] as TextFrame;
