@@ -32,7 +32,7 @@ export const customBars: { [K in CustomBarTypes]: BarShapeTypes[] } & Object = {
     'stop': ['lower', 'full'],          // 31
 }
 
-export const alphabetBars: { [key: string]: CustomBarTypes[] } = {
+export const alphabetPatterns: { [key: string]: CustomBarTypes[] } = {
     'A': ['CC1', '0'],
     'B': ['CC1', '1'],
     'C': ['CC1', '2'],
