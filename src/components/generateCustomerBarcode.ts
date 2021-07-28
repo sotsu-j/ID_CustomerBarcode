@@ -4,46 +4,9 @@
 ///  https://www.post.japanpost.jp/zipcode/zipmanual/index.html
 ///
 ////////////////////////////////////////////////////////////////
+import { alphabetBars, barShapes, customBars } from './codePatterns';
 import { getCheckDigit } from './getCheckDigit';
 import { getTargetLayer } from './getTargetLayer';
-
-const barShapes: { [K in BarShapeTypes]: [boolean, boolean, boolean] } & Object = {
-    'full': [true, true, true],     // 1
-    'upper': [true, true, false],   // 2
-    'lower': [false, true, true],   // 3
-    'middle': [false, true, false], // 4
-}
-
-const customBars: { [K in CustomBarTypes]: BarShapeTypes[] } & Object = {
-    // number
-    '1': ['full', 'full', 'middle'],    // 114
-    '2': ['full', 'lower', 'upper'],    // 132
-    '3': ['lower', 'full', 'upper'],    // 312
-    '4': ['full', 'upper', 'lower'],    // 123
-    '5': ['full', 'middle', 'full'],    // 141
-    '6': ['lower', 'upper', 'full'],    // 321
-    '7': ['upper', 'full', 'lower'],    // 213
-    '8': ['upper', 'lower', 'full'],    // 231
-    '9': ['middle', 'full', 'full'],    // 411
-    '0': ['full', 'middle', 'middle'],  // 144
-    // cc
-    '-': ['middle', 'full', 'middle'],  // 414
-    'CC1': ['lower', 'upper', 'middle'],// 324
-    'CC2': ['lower', 'middle', 'upper'],// 342
-    'CC3': ['upper', 'lower', 'middle'],// 234
-    'CC4': ['middle', 'lower', 'upper'],// 432
-    'CC5': ['upper', 'middle', 'lower'],// 243
-    'CC6': ['middle', 'upper', 'lower'],// 423
-    'CC7': ['middle', 'middle', 'full'],// 441
-    'CC8': ['full', 'full', 'full'],    // 111
-    // start & stop
-    'start': ['full', 'lower'],         // 13
-    'stop': ['lower', 'full'],          // 31
-}
-
-const alphabetBars: { [key: string]: CustomBarTypes[] } = {
-    'A': ['CC1', '0'],
-}
 
 export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
     const targetPage = frame.parentPage;
