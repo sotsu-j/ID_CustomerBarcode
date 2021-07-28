@@ -1,37 +1,48 @@
+////////////////////////////////////////////////////////////////
+///
+///  バーコードの仕様は郵便局の下記サイトより
+///  https://www.post.japanpost.jp/zipcode/zipmanual/index.html
+///
+////////////////////////////////////////////////////////////////
 type BarShapeTypes = 'full' | 'upper' | 'lower' | 'middle';
-type CustomBarTypes = 'start' | 'end' | '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '-' | 'c1' | 'c2' | 'c3' | 'c4' | 'c5' | 'c6' | 'c7' | 'c8';
+type CustomBarTypes = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0' | '-' | 'CC1' | 'CC2' | 'CC3' | 'CC4' | 'CC5' | 'CC6' | 'CC7' | 'CC8' | 'start' | 'stop';
 
 const barShapes: { [K in BarShapeTypes]: [boolean, boolean, boolean] } & Object = {
-    'full': [true, true, true],
-    'upper': [true, true, false],
-    'lower': [false, true, true],
-    'middle': [false, true, false],
+    'full': [true, true, true],     // 1
+    'upper': [true, true, false],   // 2
+    'lower': [false, true, true],   // 3
+    'middle': [false, true, false], // 4
 }
 
 const customBars: { [K in CustomBarTypes]: BarShapeTypes[] } & Object = {
-    'start': ['full', 'lower'],
-    'end': ['lower', 'full'],
     // number
-    '0': ['full', 'middle', 'middle'],
-    '1': ['full', 'full', 'middle'],
-    '2': ['full', 'lower', 'upper'],
-    '3': ['lower', 'full', 'upper'],
-    '4': ['full', 'upper', 'lower'],
-    '5': ['full', 'middle', 'full'],
-    '6': ['lower', 'upper', 'full'],
-    '7': ['upper', 'full', 'lower'],
-    '8': ['upper', 'lower', 'full'],
-    '9': ['middle', 'full', 'full'],
+    '1': ['full', 'full', 'middle'],    // 114
+    '2': ['full', 'lower', 'upper'],    // 132
+    '3': ['lower', 'full', 'upper'],    // 312
+    '4': ['full', 'upper', 'lower'],    // 123
+    '5': ['full', 'middle', 'full'],    // 141
+    '6': ['lower', 'upper', 'full'],    // 321
+    '7': ['upper', 'full', 'lower'],    // 213
+    '8': ['upper', 'lower', 'full'],    // 231
+    '9': ['middle', 'full', 'full'],    // 411
+    '0': ['full', 'middle', 'middle'],  // 144
     // cc
-    '-': ['middle', 'full', 'middle'],
-    'c1': ['lower', 'upper', 'middle'],
-    'c2': ['lower', 'middle', 'upper'],
-    'c3': ['upper', 'lower', 'middle'],
-    'c4': ['middle', 'lower', 'upper'],
-    'c5': ['upper', 'middle', 'lower'],
-    'c6': ['middle', 'upper', 'lower'],
-    'c7': ['middle', 'middle', 'full'],
-    'c8': ['full', 'full', 'full'],
+    '-': ['middle', 'full', 'middle'],  // 414
+    'CC1': ['lower', 'upper', 'middle'],// 324
+    'CC2': ['lower', 'middle', 'upper'],// 342
+    'CC3': ['upper', 'lower', 'middle'],// 234
+    'CC4': ['middle', 'lower', 'upper'],// 432
+    'CC5': ['upper', 'middle', 'lower'],// 243
+    'CC6': ['middle', 'upper', 'lower'],// 423
+    'CC7': ['middle', 'middle', 'full'],// 441
+    'CC8': ['full', 'full', 'full'],    // 111
+    // start & stop
+    'start': ['full', 'lower'],         // 13
+    'stop': ['lower', 'full'],          // 31
+}
+
+const alphabetBars = {
+    'A': [...customBars['CC1'], ...customBars['0']],
 }
 
 export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
@@ -43,7 +54,11 @@ export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
     const top = Number(frame.geometricBounds[0]);
     const left = Number(frame.geometricBounds[1]);
 
-    const codes = postcode.split('') as CustomBarTypes[];
+    const codes = postcode.split('').reduce((codes, code) => {
+        // A-Zのアルファベットに対する処理を挿入
+        codes.push(code);
+        return codes;
+    }, [] as string[]) as CustomBarTypes[];
     codes.unshift('start');
 
     const patterns = [] as BarShapeTypes[];
@@ -52,15 +67,16 @@ export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
         if (code in customBars) {
             patterns.push(...customBars[code]);
         } else {
-            patterns.push(...customBars['c4']);
+            patterns.push(...customBars['CC4']);
         }
     }
+    patterns.splice(62); // オーバーフロー分を削除する
     // push check digit
     const checkDigit = getCheckDigit(codes);
     patterns.push(...customBars[checkDigit])
 
     // push end digit
-    patterns.push(...customBars['end']);
+    patterns.push(...customBars['stop']);
 
     patterns.reduce(([top, left], pattern) => {
         const pathItem = targetPage.rectangles.add(targetLayer);
@@ -85,13 +101,20 @@ const getCheckDigit = (codes: CustomBarTypes[]): CustomBarTypes => {
         switch (code) {
             default: return sum + Number(code);
             case '-': return sum + 10;
-            case 'c4': return sum + 14;
+            case 'CC1': return sum + 11;
+            case 'CC2': return sum + 12;
+            case 'CC3': return sum + 13;
+            case 'CC4': return sum + 14;
+            case 'CC5': return sum + 15;
+            case 'CC6': return sum + 16;
+            case 'CC7': return sum + 17;
+            case 'CC8': return sum + 18;
+            case 'start': return sum;
+            case 'stop': return sum;
         }
     }, 0);
 
-    const value = sum % 19 === 0
-        ? 0
-        : ((Math.floor(sum / 19) + 1) * 19 - sum);
+    const value = Math.ceil(sum / 19) * 19 - sum;
 
     switch (value) {
         default: return '-';
@@ -106,14 +129,14 @@ const getCheckDigit = (codes: CustomBarTypes[]): CustomBarTypes => {
         case 8: return '8';
         case 9: return '9';
         case 10: return '-';
-        case 11: return 'c1';
-        case 12: return 'c2';
-        case 13: return 'c3';
-        case 14: return 'c4';
-        case 15: return 'c5';
-        case 16: return 'c6';
-        case 17: return 'c7';
-        case 18: return 'c8';
+        case 11: return 'CC1';
+        case 12: return 'CC2';
+        case 13: return 'CC3';
+        case 14: return 'CC4';
+        case 15: return 'CC5';
+        case 16: return 'CC6';
+        case 17: return 'CC7';
+        case 18: return 'CC8';
     }
 }
 
