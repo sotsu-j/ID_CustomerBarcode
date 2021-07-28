@@ -4,8 +4,8 @@
 ///  https://www.post.japanpost.jp/zipcode/zipmanual/index.html
 ///
 ////////////////////////////////////////////////////////////////
-type BarShapeTypes = 'full' | 'upper' | 'lower' | 'middle';
-type CustomBarTypes = '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | '0' | '-' | 'CC1' | 'CC2' | 'CC3' | 'CC4' | 'CC5' | 'CC6' | 'CC7' | 'CC8' | 'start' | 'stop';
+import { getCheckDigit } from './getCheckDigit';
+import { getTargetLayer } from './getTargetLayer';
 
 const barShapes: { [K in BarShapeTypes]: [boolean, boolean, boolean] } & Object = {
     'full': [true, true, true],     // 1
@@ -41,8 +41,8 @@ const customBars: { [K in CustomBarTypes]: BarShapeTypes[] } & Object = {
     'stop': ['lower', 'full'],          // 31
 }
 
-const alphabetBars = {
-    'A': [...customBars['CC1'], ...customBars['0']],
+const alphabetBars: { [key: string]: CustomBarTypes[] } = {
+    'A': ['CC1', '0'],
 }
 
 export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
@@ -54,11 +54,18 @@ export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
     const top = Number(frame.geometricBounds[0]);
     const left = Number(frame.geometricBounds[1]);
 
-    const codes = postcode.split('').reduce((codes, code) => {
-        // A-Zのアルファベットに対する処理を挿入
-        codes.push(code);
+    const codes = (postcode + '_______________').split('').reduce((codes, code) => {
+        // A-Zのアルファベットに対する処理
+        if (code in alphabetBars) {
+            codes.push(...alphabetBars[code]);
+        } else if (code in customBars) {
+            codes.push(code as CustomBarTypes);
+        } else {
+            codes.push('CC4');
+        }
         return codes;
-    }, [] as string[]) as CustomBarTypes[];
+    }, [] as CustomBarTypes[]).slice(0, 20); // オーバーフロー分を削除する
+
     codes.unshift('start');
 
     const patterns = [] as BarShapeTypes[];
@@ -70,7 +77,6 @@ export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
             patterns.push(...customBars['CC4']);
         }
     }
-    patterns.splice(62); // オーバーフロー分を削除する
     // push check digit
     const checkDigit = getCheckDigit(codes);
     patterns.push(...customBars[checkDigit])
@@ -91,60 +97,4 @@ export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
         pathItem.fillColor = fillColor;
         return [top, left + barPitch];
     }, [top, left]);
-}
-
-//============================================
-//	check digit 
-//============================================
-const getCheckDigit = (codes: CustomBarTypes[]): CustomBarTypes => {
-    const sum = codes.reduce((sum, code) => {
-        switch (code) {
-            default: return sum + Number(code);
-            case '-': return sum + 10;
-            case 'CC1': return sum + 11;
-            case 'CC2': return sum + 12;
-            case 'CC3': return sum + 13;
-            case 'CC4': return sum + 14;
-            case 'CC5': return sum + 15;
-            case 'CC6': return sum + 16;
-            case 'CC7': return sum + 17;
-            case 'CC8': return sum + 18;
-            case 'start': return sum;
-            case 'stop': return sum;
-        }
-    }, 0);
-
-    const value = Math.ceil(sum / 19) * 19 - sum;
-
-    switch (value) {
-        default: return '-';
-        case 0: return '0';
-        case 1: return '1';
-        case 2: return '2';
-        case 3: return '3';
-        case 4: return '4';
-        case 5: return '5';
-        case 6: return '6';
-        case 7: return '7';
-        case 8: return '8';
-        case 9: return '9';
-        case 10: return '-';
-        case 11: return 'CC1';
-        case 12: return 'CC2';
-        case 13: return 'CC3';
-        case 14: return 'CC4';
-        case 15: return 'CC5';
-        case 16: return 'CC6';
-        case 17: return 'CC7';
-        case 18: return 'CC8';
-    }
-}
-
-//============================================
-//	target layer
-//============================================
-const getTargetLayer = () => {
-    const layerName = 'output barcode';
-    const layer = app.activeDocument.layers.item(layerName);
-    return layer ?? app.activeDocument.layers.add({ name: layerName });
 }
