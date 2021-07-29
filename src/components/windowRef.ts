@@ -1,18 +1,22 @@
 export const windowRef = `
 	orientation: 'column',
 	alignChildren: 'fill',
-	options: Panel {
+	layer: Panel {
 		text: '対象レイヤー',
-		preferredSize: ['80',''],
 		alignChildren: 'left',
 		barcord: Group {
-			label: StaticText { text: 'バーコード', characters: 8 }
-			layer: DropDownList { }
-		}
+			label: StaticText { text: 'バーコード', characters: 8 },
+			target: DropDownList { },
+		},
 		postcode: Group {
-			label: StaticText { text: '郵便番号', characters: 8 }
-			layer: DropDownList { }
-		}
+			label: StaticText { text: '郵便番号', characters: 8 },
+			target: DropDownList { },
+		},
+	},
+	options: Panel {
+		text: 'オプション',
+		alignChildren: 'fill',
+		isOnFormat: Checkbox { text: 'バーコードを10ポ相当で作成する', value: true },
 	},
 	execute: Group {
 		orientation: 'row',

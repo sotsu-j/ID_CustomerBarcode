@@ -10,6 +10,7 @@ import "extendscript-es5-shim-ts";
 
 import generateCustomerBarcode from "../components";
 
+app.scriptPreferences.measurementUnit = MeasurementUnits.MILLIMETERS;
 app.doScript(generateCustomerBarcode, ScriptLanguage.JAVASCRIPT, undefined, UndoModes.ENTIRE_SCRIPT);
 ////////////////////////////////////////////////////////////////
 //

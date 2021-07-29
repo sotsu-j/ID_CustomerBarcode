@@ -36,23 +36,24 @@ export class SettingDialog {
 
         /// init data
         for (let i = 0; i < app.activeDocument.layers.length; i++) {
-            this.w.options.postcode.layer.add('item', app.activeDocument.layers[i].name);
-            this.w.options.barcord.layer.add('item', app.activeDocument.layers[i].name);
+            this.w.layer.postcode.target.add('item', app.activeDocument.layers[i].name);
+            this.w.layer.barcord.target.add('item', app.activeDocument.layers[i].name);
         }
-        if (this.w.options.postcode.layer.find(BARCODE_LAYERS.POSTCODE)) {
-            this.w.options.postcode.layer.find(BARCODE_LAYERS.POSTCODE).selected = true;
+        if (this.w.layer.postcode.target.find(BARCODE_LAYERS.POSTCODE)) {
+            this.w.layer.postcode.target.find(BARCODE_LAYERS.POSTCODE).selected = true;
         }
-        if (this.w.options.barcord.layer.find(BARCODE_LAYERS.BARCODE_SHAPE)) {
-            this.w.options.barcord.layer.find(BARCODE_LAYERS.BARCODE_SHAPE).selected = true;
+        if (this.w.layer.barcord.target.find(BARCODE_LAYERS.BARCODE_SHAPE)) {
+            this.w.layer.barcord.target.find(BARCODE_LAYERS.BARCODE_SHAPE).selected = true;
         }
     }
 
     fetch() {
-        const postcodeFrames = app.activeDocument.layers.item(this.w.options.postcode.layer.selection.toString()).pageItems;
-        const barcodeFrames = app.activeDocument.layers.item(this.w.options.barcord.layer.selection.toString()).pageItems;
+        const postcodeFrames = app.activeDocument.layers.item(this.w.layer.postcode.target.selection.toString()).pageItems;
+        const barcodeFrames = app.activeDocument.layers.item(this.w.layer.barcord.target.selection.toString()).pageItems;
         return {
             postcodeFrames,
             barcodeFrames,
+            isOnFormat: this.w.options.isOnFormat.value,
         };
     }
 
