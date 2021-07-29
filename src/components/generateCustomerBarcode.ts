@@ -32,8 +32,8 @@ export const generateCustomerBarcode = (postcode: string, frame: PageItem) => {
             left + barWidth
         ];
         
-        const fillColor = app.activeDocument.colors.item('Black');
-        pathItem.fillColor = fillColor;
+        pathItem.fillColor = app.activeDocument.colors.item('Black');
+        pathItem.strokeColor = app.activeDocument.swatches.item('None');
         return [top, left + barPitch];
     }, [top, left]);
 }

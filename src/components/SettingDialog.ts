@@ -1,4 +1,5 @@
 import { BARCODE_LAYERS } from ".";
+import { windowRef } from './windowRef';
 
 const initialParams = {
     postcode: new Dropdown(),
@@ -6,57 +7,49 @@ const initialParams = {
 }
 
 export class SettingDialog {
+    private isExcute = false;
     private params = initialParams;
-    private w: Dialog;
-    private windowRef = {
-        name: `郵便番号・バーコード`,
-    };
+    private w: MyWindow;
+    private name = `郵便番号・バーコード`;
 
     constructor() {
-        this.w = app.dialogs.add(this.windowRef);
+        //this.w = app.dialogs.add(this.windowRef);
+        this.w = new Window(`dialog { 
+			text: '${this.name}',
+			${windowRef}
+		}`) as MyWindow;
 
         this.initialize();
     }
 
     initialize = () => {
-        const isOver8 = Number(app.version.split('.')[0]) >= 8;
-        const col = this.w.dialogColumns.add({});
-        if (col) {
-            col.dialogRows.add({}).staticTexts.add({ staticLabel: "文字枠を作成します" })
-            const row_1 = col.dialogRows.add({});
-            if (row_1) {
-                row_1.staticTexts.add({ staticLabel: "バーコード:", minWidth: 160, staticAlignment: isOver8 ? StaticAlignmentOptions.LEFT_ALIGN : null });
-                const stringList = [];
-                let selectedIndex = 0;
-                for (let i = 0; i < app.activeDocument.layers.length; i++) {
-                    const name = app.activeDocument.layers[i].name;
-                    stringList.push(name);
-                    if (name === BARCODE_LAYERS.BARCODE_SHAPE) {
-                        selectedIndex = i;
-                    }
-                }
-                this.params.barcode = row_1.dropdowns.add({ stringList, selectedIndex });
-            }
-            const row_2 = col.dialogRows.add({});
-            if (row_2) {
-                row_2.staticTexts.add({ staticLabel: "郵便番号:", minWidth: 160, staticAlignment: isOver8 ? StaticAlignmentOptions.LEFT_ALIGN : null });
-                const stringList = [];
-                let selectedIndex = 0;
-                for (let i = 0; i < app.activeDocument.layers.length; i++) {
-                    const name = app.activeDocument.layers[i].name;
-                    stringList.push(name);
-                    if (name === BARCODE_LAYERS.POSTCODE) {
-                        selectedIndex = i;
-                    }
-                }
-                this.params.postcode = row_2.dropdowns.add({ stringList, selectedIndex });
-            }
+        /// Submit, Cancel
+        this.w.execute.executeBtn.onClick = () => {
+            this.isExcute = true;
+            this.close();
+        }
+        this.w.execute.cancelBtn.onClick = () => {
+            this.close();
+        }
+        //this.w.defaultElement = this.w.execute.executeBtn;
+        //this.w.cancelElement = this.w.execute.cancelBtn;
+
+        /// init data
+        for (let i = 0; i < app.activeDocument.layers.length; i++) {
+            this.w.options.postcode.layer.add('item', app.activeDocument.layers[i].name);
+            this.w.options.barcord.layer.add('item', app.activeDocument.layers[i].name);
+        }
+        if (this.w.options.postcode.layer.find(BARCODE_LAYERS.POSTCODE)) {
+            this.w.options.postcode.layer.find(BARCODE_LAYERS.POSTCODE).selected = true;
+        }
+        if (this.w.options.barcord.layer.find(BARCODE_LAYERS.BARCODE_SHAPE)) {
+            this.w.options.barcord.layer.find(BARCODE_LAYERS.BARCODE_SHAPE).selected = true;
         }
     }
 
     fetch() {
-        const postcodeFrames = app.activeDocument.layers.item(this.params.postcode.stringList[this.params.postcode.selectedIndex]).pageItems;
-        const barcodeFrames = app.activeDocument.layers.item(this.params.barcode.stringList[this.params.barcode.selectedIndex]).pageItems;
+        const postcodeFrames = app.activeDocument.layers.item(this.w.options.postcode.layer.selection.toString()).pageItems;
+        const barcodeFrames = app.activeDocument.layers.item(this.w.options.barcord.layer.selection.toString()).pageItems;
         return {
             postcodeFrames,
             barcodeFrames,
@@ -64,10 +57,11 @@ export class SettingDialog {
     }
 
     show() {
-        return this.w.show()
-            ? this.fetch()
-            : false;
+        this.w.show();
+        return this.isExcute && this.fetch();
     }
 
-    close() { }
+    close() {
+        this.w.close();
+     }
 }

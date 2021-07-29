@@ -16,6 +16,7 @@
 
     /*　reference types　*/　                   /* Uncomment the app you want to develop */
     "types": [
+      "types-for-adobe/shared/ScriptUI",
       //"types-for-adobe/Illustrator/2015.3",
       "types-for-adobe/InDesign/2015.3",
       //"types-for-adobe/Photoshop/2015.5",
