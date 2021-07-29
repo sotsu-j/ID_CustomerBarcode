@@ -4,14 +4,14 @@
 ///  https://www.post.japanpost.jp/zipcode/zipmanual/index.html
 ///
 ////////////////////////////////////////////////////////////////
-import { alphabetBars, customBars } from './codePatterns';
+import { alphabetPatterns, customBars } from './codePatterns';
 import { getCheckDigit } from './getCheckDigit';
 
 export const toCodes = (postcode: string) => {
     const codes = (postcode + '_______________').split('').reduce((codes, code) => {
         // A-Zのアルファベットに対する処理
-        if (code in alphabetBars) {
-            codes.push(...alphabetBars[code]);
+        if (code in alphabetPatterns) {
+            codes.push(...alphabetPatterns[code]);
         } else if (code in customBars) {
             codes.push(code as CustomBarTypes);
         } else {
