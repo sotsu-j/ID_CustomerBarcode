@@ -19,7 +19,7 @@ export const getCheckDigit = (codes: CustomBarTypes[]): CustomBarTypes => {
         }
     }, 0);
 
-    const value = Math.ceil(sum / 19) * 19 - sum;
+    const value = 19 - sum % 19;//Math.ceil(sum / 19) * 19 - sum;
 
     switch (value) {
         default: return '-';
