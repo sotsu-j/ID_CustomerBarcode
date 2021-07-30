@@ -4,12 +4,12 @@ export const windowRef = `
 	layer: Panel {
 		text: '対象レイヤー',
 		alignChildren: 'left',
-		barcord: Group {
-			label: StaticText { text: 'バーコード', characters: 8 },
+		postcode: Group {
+			label: StaticText { text: '元データ', characters: 8 },
 			target: DropDownList { },
 		},
-		postcode: Group {
-			label: StaticText { text: '郵便番号', characters: 8 },
+		barcord: Group {
+			label: StaticText { text: '出力レイヤー', characters: 8 },
 			target: DropDownList { },
 		},
 	},
