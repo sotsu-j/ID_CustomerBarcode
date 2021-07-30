@@ -7,19 +7,19 @@
 import { kanji2arabicOnAddress } from "./kanji2arabic";
 
 export const transformAddressToCodeElement = (address: string) => {
-    const supplementaryRules_1 = kanji2arabicOnAddress(address);
+    const supplementaryRule_1 = kanji2arabicOnAddress(address);
 
-    const phase_1 = supplementaryRules_1.toUpperCase();
-    const phase_2 = phase_1.replace(/[&\/・\.]/g, '');
-    const phase_3 = phase_2.replace(/[A-Z]{2,}/g, '');
+    const rule_1 = supplementaryRule_1.toUpperCase();
+    const rule_2 = rule_1.replace(/[&\/・\.]/g, '');
+    const rule_3 = rule_2.replace(/[A-Z]{2,}/g, '');
 
-    const supplementaryRules_2_3 = phase_3.replace(/([0-9])F([^F]+?)/g, "$1-$2").replace(/([0-9])F/g, "$1");
+    const supplementaryRule_2_3 = rule_3.replace(/([0-9])F([^F]+?)/g, "$1-$2").replace(/([0-9])F/g, "$1");
 
-    const phase_4 = supplementaryRules_2_3.replace(/[^0-9A-Z\-]/g, '-');
-    const phase_5 = phase_4.replace(/\-{2,}/g, '-');
-    const phase_6 = phase_5.replace(/^\-/, '');
+    const rule_4 = supplementaryRule_2_3.replace(/[^0-9A-Z\-]/g, '-');
+    const rule_5 = rule_4.replace(/\-{2,}/g, '-');
+    const rule_6 = rule_5.replace(/^\-/, '');
 
-    const supplementaryRules_4_5 = phase_6.replace(/\-?([A-Z])\-?/g, "$1");
+    const supplementaryRule_4_5 = rule_6.replace(/\-?([A-Z])\-?/g, "$1");
 
-    return supplementaryRules_4_5;
+    return supplementaryRule_4_5;
 }
